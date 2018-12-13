@@ -41,7 +41,14 @@ server <- function(input, output, session) {
 
       addProviderTiles(providers$CartoDB.DarkMatter,
                        options=providerTileOptions(minZoom=2,maxZoom=7)) %>%
-      addHeatmap(lng=~as.numeric(order_longitude),lat=~as.numeric(order_latitude),intensity=~amount,max=1,radius=8) # make radius alterable by user?
+      addHeatmap(lng=~as.numeric(order_longitude),lat=~as.numeric(order_latitude),intensity=~amount,max=1,radius=8) %>% # make radius alterable by user?
+      setMaxBounds(lng1=-180, 
+                  lat1=80,
+                  lng2=190,
+                  lat2=-70) %>%
+      addMiniMap(tiles=providers$Stamen.Toner,
+                 toggleDisplay=T)
+      
   })
   
   output$payFullTable <- renderDataTable({
