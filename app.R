@@ -3,6 +3,7 @@ source("libraries.R")
 paymentCountry <- readRDS("paymentCountry.RDS")
 paymentGeo <- readRDS("paymentGeo.RDS")
 
+
 ui <- dashboardPage(
   dashboardHeader(title="Overview"),
   # Dashboard Sidebar ----
@@ -17,6 +18,7 @@ ui <- dashboardPage(
     tabItems(
       tabItem(tabName = "payment",
               fluidRow(
+
                 box(width=12,
                     leafletOutput("payHeatmap",height=500))
               ),
@@ -24,6 +26,7 @@ ui <- dashboardPage(
                 box(width=12,
                     
                     dataTableOutput("payFullTable"))
+
               )
       )
     )
@@ -35,6 +38,7 @@ server <- function(input, output, session) {
   output$payHeatmap <- renderLeaflet({
     # need to exclude NA values, otherwise leaflet.extras breaks
     paymentGeo %>% filter(!is.na(order_longitude)) %>% leaflet() %>%
+
       addProviderTiles(providers$CartoDB.DarkMatter,
                        options=providerTileOptions(minZoom=2,maxZoom=7)) %>%
       addHeatmap(lng=~as.numeric(order_longitude),lat=~as.numeric(order_latitude),intensity=~amount,max=1,radius=8) # make radius alterable by user?
@@ -47,6 +51,7 @@ server <- function(input, output, session) {
                                lengthMenu=c(10,50,100),
                                order=list(list(1,'desc')),
                                scrollX=TRUE))
+
   })
   
 }
