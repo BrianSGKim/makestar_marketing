@@ -30,11 +30,16 @@ paymentCountry <- payments %>% group_by(order_country_code,date=as.Date(paid_dat
                    orderTotal=sum((amount_order*exchange)+(amount_delivery*delivery_exchange)) )%>% 
   mutate(amountPer=orderAmount/paying,amountTotalPer=orderTotal/paying,countryname=countrycode(order_country_code,origin="iso2c",destination="country.name"))
 
-paymentCountry$countryname <- countrycode(paymentc$order_country_code,origin="iso2c",destination="country.name")
+paymentCountry$countryname <- countrycode(paymentCountry$order_country_code,origin="iso2c",destination="country.name")
+
+saveRDS(paymentCountry,file="paymentCountry.RDS")
 
 # payment record by geoip
 paymentGeo <- select(payments,order_no,amount,amount_order,exchange,amount_delivery,delivery_exchange,paid_date,order_longitude,order_latitude) %>%
   # group_by(order_no,lon=order_longitude,lat=order_latitude,date=as.Date(paid_date)) %>%
   mutate(paid=amount_order*exchange,delivery=amount_delivery*delivery_exchange)
+
+saveRDS(paymentGeo,file="paymentGeo.RDS")
+
 
 
