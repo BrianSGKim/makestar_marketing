@@ -9,14 +9,26 @@ ui <- dashboardPage(
   # Dashboard Sidebar ----
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Payment",tabName="payment")
-      
+      menuItem("Payment",tabName="payment"),
+      airDatepickerInput("dates",
+                         label=h3("Date range"),
+                         value=c(Sys.Date()-10,Sys.Date()),
+                         range=TRUE,
+                         autoClose=TRUE,
+                         update_on="close"
+                         )
     )
   ),
   # Dashboard Body ----
   dashboardBody(
     tabItems(
       tabItem(tabName = "payment",
+              # fluidRow(
+              #   box(width=6,
+              #       verbatimTextOutput("value"),
+              #       verbatimTextOutput("value1"),
+              #       verbatimTextOutput("value2"))
+              # ),
               fluidRow(
 
                 box(width=12,
@@ -26,7 +38,6 @@ ui <- dashboardPage(
                 box(width=12,
                     
                     dataTableOutput("payFullTable"))
-
               )
       )
     )
@@ -34,6 +45,10 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session) {
+  
+  # output$value <- renderPrint({ input$dates })
+  # output$value1 <- renderPrint({ input$dates[1] })
+  # output$value2 <- renderPrint({ input$dates[2] })
   
   output$payHeatmap <- renderLeaflet({
     # need to exclude NA values, otherwise leaflet.extras breaks
