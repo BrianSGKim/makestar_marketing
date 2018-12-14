@@ -12,7 +12,7 @@ ui <- dashboardPage(
       menuItem("Payment",tabName="payment"),
       airDatepickerInput("dates",
                          label=h3("Date range"),
-                         value=c(Sys.Date()-10,Sys.Date()),
+                         value=c(Sys.Date()-7,Sys.Date()),
                          range=TRUE,
                          autoClose=TRUE,
                          update_on="close"
