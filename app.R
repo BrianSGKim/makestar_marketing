@@ -2,6 +2,7 @@ source("libraries.R")
 
 paymentCountry <- readRDS("paymentCountry.RDS")
 paymentGeo <- readRDS("paymentGeo.RDS")
+usersC <- readRDS("usersC.RDS")
 
 
 ui <- dashboardPage(
@@ -34,6 +35,18 @@ ui <- dashboardPage(
                     leafletOutput("payHeatmap",height=500))
               ),
               fluidRow(
+                box(width=4,
+                    background="black",
+                    span(textOutput("orderAmountText"), style = "font-size:16px;font-weight:bold;"),
+                    span(textOutput("orderAmountTotalText"), style = "font-size:16px;font-weight:bold;")
+                ),
+                box(width=4,
+                    background="black",
+                    span(textOutput("userSignUpText"), style = "font-size:16px;font-weight:bold;")
+                    # span(textOutput("orderAmountTotalText"), style = "font-size:16px;font-weight:bold;")
+                )
+              ),
+              fluidRow(
                 box(width=6,
                     plotlyOutput("payScatter",height=250)),
                 box(width=6,
@@ -41,7 +54,6 @@ ui <- dashboardPage(
               ),
               fluidRow(
                 box(width=12,
-                    
                     dataTableOutput("payFullTable"))
               )
       )
@@ -51,15 +63,35 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
-  # output$value <- renderPrint({ input$dates })
-  # output$value1 <- renderPrint({ input$dates[1] })
-  # output$value2 <- renderPrint({ input$dates[2] })
-
-  # Heatmap ----
+  # Payment reactive ----
+  payDate <- reactive({
+    paymentCountry %>% filter(between(date,input$dates[1],input$dates[2]))
+  })
+  
+  # Heatmap reactive ----
   geoDate <- reactive({
     paymentGeo %>% filter(!is.na(order_longitude),between(as.Date(paid_date),input$dates[1],input$dates[2]))
   })
   
+  # Users reactive (signup) ----
+  userSUDate <- reactive({
+    usersC %>% filter(!is.na(activated_date),between(activated_date,input$dates[1],input$dates[2]))
+  })
+
+  # General Metrics ----
+  output$orderAmountText <- renderText({
+    paste("모금액:  \U20A9",format(payDate() %$% sum(orderAmount),nsmall=0,big.mark=","))
+  })
+  
+  output$orderAmountTotalText <- renderText({
+    paste("모금액+배송:  \U20A9",format(payDate() %$% sum(orderTotal),nsmall=0,big.mark=","))
+  })
+  
+  output$userSignUpText <- renderText({
+    paste0("가입자: ",format(userSUDate() %>% nrow(),big.mark=","),"명")
+  })
+  
+  # Heatmap ----
   output$payHeatmap <- renderLeaflet({
     # need to exclude NA values, otherwise leaflet.extras breaks
     # paymentGeo %>% filter(!is.na(order_longitude),between(as.Date(paid_date),Sys.Date()-7,Sys.Date())) %>% 
@@ -93,10 +125,7 @@ server <- function(input, output, session) {
                  radius=8) # make radius alterable by user?
   })
   
-  # Payment reactive ----
-  payDate <- reactive({
-    paymentCountry %>% filter(between(date,input$dates[1],input$dates[2]))
-  })
+
   
   # Scatter plot pay amount ----
   output$payScatter <- renderPlotly({
