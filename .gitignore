@@ -38,3 +38,6 @@ rsconnect/
 
 # Data files
 *.RDS
+
+# Log files
+*.log
