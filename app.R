@@ -4,6 +4,7 @@ paymentCountry <- readRDS("paymentCountry.RDS")
 paymentGeo <- readRDS("paymentGeo.RDS")
 usersC <- readRDS("usersC.RDS")
 
+countries <- na.omit(unique(c(paymentCountry$countryname,paymentGeo$countryname)))
 
 ui <- dashboardPage(
   dashboardHeader(title="Overview"),
@@ -18,7 +19,9 @@ ui <- dashboardPage(
                          autoClose=TRUE,
                          update_on="close"
                          )
-    )
+    ),
+    selectizeInput('countrySelect',label="Selected Countries",choices=countries,multiple=TRUE,options=list(placeholder="All"))
+    # verbatimTextOutput("countries")
   ),
   # Dashboard Body ----
   dashboardBody(
@@ -43,7 +46,6 @@ ui <- dashboardPage(
                 box(width=4,
                     background="black",
                     span(textOutput("userSignUpText"), style = "font-size:16px;font-weight:bold;")
-                    # span(textOutput("orderAmountTotalText"), style = "font-size:16px;font-weight:bold;")
                 )
               ),
               fluidRow(
@@ -63,19 +65,41 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  # output$countries <- renderPrint({
+  #   input$countrySelect
+  # })
+  
   # Payment reactive ----
   payDate <- reactive({
-    paymentCountry %>% filter(between(date,input$dates[1],input$dates[2]))
+    data <- paymentCountry %>% filter(between(date,input$dates[1],input$dates[2]))
+    data <- if (is.null(input$countrySelect)) {
+      data
+    } else {
+      data %>% filter(countryname %in% input$countrySelect)
+    }
+
   })
   
   # Heatmap reactive ----
   geoDate <- reactive({
-    paymentGeo %>% filter(!is.na(order_longitude),between(as.Date(paid_date),input$dates[1],input$dates[2]))
+    data <- paymentGeo %>% filter(!is.na(order_longitude),between(as.Date(paid_date),input$dates[1],input$dates[2]))
+    
+    data <- if (is.null(input$countrySelect)) {
+      data
+    } else {
+      data %>% filter(countryname %in% input$countrySelect)
+    }
   })
   
   # Users reactive (signup) ----
   userSUDate <- reactive({
-    usersC %>% filter(!is.na(activated_date),between(activated_date,input$dates[1],input$dates[2]))
+    data <- usersC %>% filter(!is.na(activated_date),between(activated_date,input$dates[1],input$dates[2]))
+    
+    data <- if (is.null(input$countrySelect)) {
+      data
+    } else {
+      data %>% filter(countryname %in% input$countrySelect)
+    }
   })
 
   # General Metrics ----
