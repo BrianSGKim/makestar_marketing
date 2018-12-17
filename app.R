@@ -20,7 +20,9 @@ ui <- dashboardPage(
                          update_on="close"
                          )
     ),
-    selectizeInput('countrySelect',label="Selected Countries",choices=countries,multiple=TRUE,options=list(placeholder="All"))
+    selectizeInput('countrySelect',label="Selected Countries",choices=countries,multiple=TRUE,options=list(placeholder="All",'plugins' = list('remove_button'),
+                                                                                                           'create' = TRUE,
+                                                                                                           'persist' = FALSE))
     # verbatimTextOutput("countries")
   ),
   # Dashboard Body ----
