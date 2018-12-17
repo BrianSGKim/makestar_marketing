@@ -1,6 +1,4 @@
-library(tidyverse)
-library(RMySQL)
-library(countrycode)
+source("libraries.R")
 
 mydb <- dbConnect(MySQL(),
                   user=Sys.getenv("DB_USER"),
@@ -40,6 +38,14 @@ paymentGeo <- select(payments,order_no,amount,amount_order,exchange,amount_deliv
   # group_by(order_no,lon=order_longitude,lat=order_latitude,date=as.Date(paid_date)) %>%
   mutate(paid=amount_order*exchange,delivery=amount_delivery*delivery_exchange)
 
+nCols <- c(8,9)
+
+paymentGeo[,nCols] %<>% lapply(function(x) as.numeric(x))
+paymentGeo[,nCols] %<>% lapply(function(x) ifelse(is.na(x),0,x))
+
+paymentGeo <- paymentGeo %>% mutate(ISO3c=coords2country(paymentGeo[,nCols])) %>%
+  mutate(countryname=countrycode(.$ISO3c,origin="iso3c",destination="country.name"))
+  
 saveRDS(paymentGeo,file="paymentGeo.RDS")
 
 usersC <- select(users,idx,email,name,grade,locale,activated_date,login_date,write_date,email_subscribe,last_country_code,
