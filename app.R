@@ -51,6 +51,11 @@ ui <- dashboardPage(
                 ),
                 box(width=4,
                     background="black",
+                    span(textOutput("orderQText"), style = "font-size:16px;font-weight:bold;"),
+                    span(textOutput("orderQTotalText"), style = "font-size:16px;font-weight:bold;")
+                ),
+                box(width=4,
+                    background="black",
                     span(textOutput("userSignUpText"), style = "font-size:16px;font-weight:bold;")
                 )
               ),
@@ -119,6 +124,14 @@ server <- function(input, output, session) {
   
   output$userSignUpText <- renderText({
     paste0("가입자: ",format(userSUDate() %>% nrow(),big.mark=","),"명")
+  })
+  
+  output$orderQText <- renderText({
+    paste0("결제 횟수: ",format(payDate() %$% sum(paying),nsmall=0,big.mark=","))
+  })
+  
+  output$orderQTotalText <- renderText({
+    paste0("리워드 구매 수: ",format(payDate() %$% sum(volume),nsmall=0,big.mark=","))
   })
   
   # Heatmap ----
