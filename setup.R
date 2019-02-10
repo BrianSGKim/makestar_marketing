@@ -1,3 +1,4 @@
+setwd("/srv/shiny-server/ms_over")
 source("libraries.R")
 
 mydb <- dbConnect(MySQL(),

@@ -4,7 +4,7 @@ paymentCountry <- readRDS("paymentCountry.RDS")
 paymentGeo <- readRDS("paymentGeo.RDS")
 usersC <- readRDS("usersC.RDS")
 
-countries <- na.omit(unique(c(paymentCountry$countryname,paymentGeo$countryname)))
+countries <- c("*한국 제외",na.omit(unique(c(paymentCountry$countryname,paymentGeo$countryname))))
 
 ui <- dashboardPage(
   dashboardHeader(title="Overview"),
@@ -85,6 +85,8 @@ server <- function(input, output, session) {
     data <- paymentCountry %>% filter(between(date,input$dates[1],input$dates[2]))
     data <- if (is.null(input$countrySelect)) {
       data
+    } else if (input$countrySelect=="*한국 제외"){
+      data %>% filter(countryname!="South Korea" & !is.na(countryname))
     } else {
       data %>% filter(countryname %in% input$countrySelect)
     }
@@ -97,6 +99,8 @@ server <- function(input, output, session) {
     
     data <- if (is.null(input$countrySelect)) {
       data
+    } else if (input$countrySelect=="*한국 제외"){
+      data %>% filter(countryname!="South Korea" & !is.na(countryname))
     } else {
       data %>% filter(countryname %in% input$countrySelect)
     }
@@ -108,6 +112,8 @@ server <- function(input, output, session) {
     
     data <- if (is.null(input$countrySelect)) {
       data
+    } else if (input$countrySelect=="*한국 제외"){
+      data %>% filter(countryname!="South Korea" & !is.na(countryname))
     } else {
       data %>% filter(countryname %in% input$countrySelect)
     }
